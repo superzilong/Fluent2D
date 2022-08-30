@@ -1,0 +1,10 @@
+[requires]
+spdlog/1.9.2
+
+[generators]
+cmake_find_package_multi
+
+[options]
+fmt:header_only=True
+fmt:with_fmt_alias=True
+spdlog:header_only=True
