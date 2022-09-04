@@ -13,7 +13,12 @@ public:
 	CircleOperator();
 	~CircleOperator() override = default;
 
-	void keyPressEvent(QKeyEvent* event) override;
+    CircleOperator(const CircleOperator& other)                = delete;
+    CircleOperator(CircleOperator&& other) noexcept            = delete;
+    CircleOperator& operator=(const CircleOperator& other)     = delete;
+    CircleOperator& operator=(CircleOperator&& other) noexcept = delete;
+
+    void keyPressEvent(QKeyEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;

@@ -14,7 +14,7 @@ public:
 
 public:
 	CADOperator();
-	~CADOperator() = default;
+	virtual ~CADOperator() = default;
 
 	void     setViewport(const int vp) { m_vp = vp; }
 	QAction* getAction() { return &m_action; }

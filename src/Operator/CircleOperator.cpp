@@ -1,8 +1,7 @@
 #include "CircleOperator.h"
 #include <QMouseEvent>
 
-#include "CoordConverter.h"
-
+#include "Core/Log/Log.h"
 #include "DisplayManager/DisplayManager.h"
 
 CircleOperator::CircleOperator()
@@ -35,14 +34,13 @@ void CircleOperator::mousePressEvent(QMouseEvent* event)
 {
 	if (m_centerPoint1Created)
 	{
-		DisplayManager::instance().deleteItem(m_vp, m_previewCircle);
-		m_previewCircle = 0;
-
 		QPoint mousePoint = event->pos();
 		QPointF p = DisplayManager::instance().viewportToWorld(m_vp, event->pos());
 		QLineF line(m_centerPoint1, p);
 		DisplayManager::instance().addCircle(m_vp, m_centerPoint1, line.length());
-		m_centerPoint1Created = false;
+		LOG_INFO("Create circle with center ({0}, {1}), radius: {2}", m_centerPoint1.x(), m_centerPoint1.y(), line.length());
+
+		reset();
 	}
 	else
 	{
@@ -83,5 +81,4 @@ void CircleOperator::reset()
 	}
 	m_centerPoint1 = QPointF();
 	m_centerPoint1Created = false;
-	m_vp = -1;
 }

@@ -25,11 +25,14 @@ public:
 
 	void setCurrentOperator(const int vp, const std::shared_ptr<BaseOperator>& op);
 
-	std::uintptr_t addCircle(const int vp, const QPointF p, const double r);
-    void    modifyCircle(const int vp, const std::uintptr_t key, const QPointF p, const double r);
+	std::uintptr_t addLine(const int vp, const QPointF& p1, const QPointF& p2);
+	void    modifyLine(const int vp, const std::uintptr_t key, const QPointF& p1, const QPointF& p2);
 
-	std::uintptr_t addRect(const int vp, const QPointF topLeft, const double w, const double h);
-    void    modifyRect(const int vp, const std::uintptr_t key, const QPointF topLeft, const double w, const double h);
+	std::uintptr_t addCircle(const int vp, const QPointF& p, const double r);
+    void    modifyCircle(const int vp, const std::uintptr_t key, const QPointF& p, const double r);
+
+	std::uintptr_t addRect(const int vp, const QPointF& topLeft, const double w, const double h);
+    void    modifyRect(const int vp, const std::uintptr_t key, const QPointF& topLeft, const double w, const double h);
 
 	std::uintptr_t addPolygon(const int vp, const QVector<QPointF>& pts);
     void    modifyPolygon(const int vp, const std::uintptr_t key, const QVector<QPointF>& pts);
@@ -38,6 +41,8 @@ public:
 
 	QPointF worldToViewport(const int vp, const QPointF& p) const;
     QPointF viewportToWorld(const int vp, const QPointF& p) const;
+
+	QPointF getMousePointInWorld(const int vp) const;
 
 Q_SIGNALS:
 	void signal_mousePos(const int vp, const QPointF& pos);

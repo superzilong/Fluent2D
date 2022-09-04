@@ -2,6 +2,10 @@
 #include <QMouseEvent>
 #include "CoordConverter.h"
 
+#include "Core/Log/Log.h"
+
+#include "DisplayManager/DisplayManager.h"
+
 TriangleOperator::TriangleOperator()
 {
 
@@ -14,31 +18,28 @@ void TriangleOperator::keyPressEvent(QKeyEvent* event)
 	{
 		if (m_point2Created)
 		{
-			//if (m_previewTri)
-			//{
-				//if (!m_previewLine)
-				//{
-				//	m_previewLine = new GraphicLine();
-				//	m_previewLine->setPoints(m_point1.x(), m_point1.y(), m_previewTri->getEndPoint3().x(), m_previewTri->getEndPoint3().y());
-				//	GraphicItemManager::instance()->addItem(m_previewLine);
-				//}
-				//
-				//GraphicItemManager::instance()->deleteItem(m_previewTri);
-				//delete m_previewTri;
-				//m_previewTri = nullptr;
-			//}
+			if (m_previewTri)
+			{
+				DisplayManager::instance().deleteItem(m_vp, m_previewTri);
+				m_previewTri = 0;
 
-			m_point2 = QPointF();
-			m_point2Created = false;
+				if (!m_previewLine)
+				{
+					QPointF mousePoint = DisplayManager::instance().getMousePointInWorld(m_vp);
+					m_previewLine = DisplayManager::instance().addLine(m_vp, m_point1, mousePoint);
+				}
+				
+				m_point2 = QPointF();
+				m_point2Created = false;
+			}
 		}
 		else if (m_point1Created)
 		{
-			//if (m_previewLine)
-			//{
-				//GraphicItemManager::instance()->deleteItem(m_previewLine);
-				//delete m_previewLine;
-				//m_previewLine = nullptr;
-			//}
+			if (m_previewLine)
+			{
+				DisplayManager::instance().deleteItem(m_vp, m_previewLine);
+				m_previewLine = 0;
+			}
 			m_point1 = QPointF();
 			m_point1Created = false;
 		}
@@ -51,72 +52,59 @@ void TriangleOperator::keyPressEvent(QKeyEvent* event)
 
 void TriangleOperator::mousePressEvent(QMouseEvent* event)
 {
-	QPoint mousePoint = event->pos();
-	//auto[x, y] = m_converter->viewportToWorld(mousePoint.x(), mousePoint.y());
+	QPointF mousePoint = DisplayManager::instance().viewportToWorld(m_vp, event->pos());
 
 	if (m_point2Created)
 	{
-		//auto tri = new GraphicTriangle();
-		//tri->setColor(0xFF, 0xB3, 0x44);
-		//tri->setPoints(m_point1.x(), m_point1.y(), m_point2.x(), m_point2.y(), x, y);
-		//GraphicItemManager::instance()->addItem(tri);
-		//reset();
-
-		//PhysicalEngine::instance()->createDynamicTriangle(tri);
+		DisplayManager::instance().addPolygon(m_vp, { m_point1, m_point2, mousePoint });
+		LOG_INFO("Create triangle with ({0}, {1}), ({2}, {3}), ({4}, {5})", m_point1.x(), m_point1.y(), m_point2.x(), m_point2.y(), mousePoint.x(), mousePoint.y());
+		reset();
 	}
 	else if (m_point1Created)
 	{
-		//m_point2 = { x, y };
+		m_point2 = mousePoint;
 		m_point2Created = true;
 
 	}
 	else if (!m_point1Created)
 	{
-		//m_point1 = { x, y };
+		m_point1 = mousePoint;
 		m_point1Created = true;
 	}
 }
 
 void TriangleOperator::mouseMoveEvent(QMouseEvent* event)
 {
-	QPoint mousePoint = event->pos();
-	//auto[x, y] = m_converter->viewportToWorld(mousePoint.x(), mousePoint.y());
+	QPointF mousePoint = DisplayManager::instance().viewportToWorld(m_vp, event->pos());
 
-	//if (m_point2Created)
-	//{
-	//	if (!m_previewTri)
-	//	{		
-	//		m_previewTri = new GraphicTriangle();
-	//		m_previewTri->setColor(0xFF, 0xB3, 0x44);
-	//		m_previewTri->setPoints(m_point1.x(), m_point1.y(), m_point2.x(), m_point2.y(), x, y);
-	//		GraphicItemManager::instance()->addItem(m_previewTri);
+	if (m_point2Created)
+	{
+		if (!m_previewTri)
+		{		
+			m_previewTri = DisplayManager::instance().addPolygon(m_vp, { m_point1, m_point2, mousePoint });
 
-	//		if (m_previewLine)
-	//		{
-	//			GraphicItemManager::instance()->deleteItem(m_previewLine);
-	//			delete m_previewLine;
-	//			m_previewLine = nullptr;
-	//		}
-	//	}
-	//	else
-	//	{
-	//		m_previewTri->setEndPoint3({ x, y });
-	//	}
-	//}
-	//else if (m_point1Created)
-	//{
-	//	if (!m_previewLine)
-	//	{
-	//		m_previewLine = new GraphicLine();
-	//		m_previewLine->setPoints(m_point1.x(), m_point1.y(), x, y);
-	//		GraphicItemManager::instance()->addItem(m_previewLine);
-	//	}
-	//	else
-	//	{
-	//		m_previewLine->setEndPoint2({ x, y });
-	//	}
-	//}
-
+			if (m_previewLine)
+			{
+				DisplayManager::instance().deleteItem(m_vp, m_previewLine);
+				m_previewLine = 0;
+			}
+		}
+		else
+		{
+			DisplayManager::instance().modifyPolygon(m_vp, m_previewTri, { m_point1, m_point2, mousePoint });
+		}
+	}
+	else if (m_point1Created)
+	{
+		if (!m_previewLine)
+		{
+			m_previewLine = DisplayManager::instance().addLine(m_vp, m_point1, mousePoint);
+		}
+		else
+		{
+			DisplayManager::instance().modifyLine(m_vp, m_previewLine, m_point1, mousePoint);
+		}
+	}
 }
 
 void TriangleOperator::mouseReleaseEvent(QMouseEvent* event)
@@ -129,16 +117,14 @@ void TriangleOperator::reset()
 	m_point2 = QPointF();
 	m_point1Created = false;
 	m_point2Created = false;
-	//if (m_previewLine)
-	//{
-	//	GraphicItemManager::instance()->deleteItem(m_previewLine);
-	//	delete m_previewLine;
-	//	m_previewLine = nullptr;
-	//}
-	//if (m_previewTri)
-	//{
-	//	GraphicItemManager::instance()->deleteItem(m_previewTri);
-	//	delete m_previewTri;
-	//	m_previewTri = nullptr;
-	//}
+	if (m_previewLine)
+	{
+		DisplayManager::instance().deleteItem(m_vp, m_previewLine);
+		m_previewLine = 0;
+	}
+	if (m_previewTri)
+	{
+		DisplayManager::instance().deleteItem(m_vp, m_previewTri);
+		m_previewTri = 0;
+	}
 }

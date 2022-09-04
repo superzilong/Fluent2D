@@ -37,6 +37,7 @@ void GraphicWidget::keyPressEvent(QKeyEvent* event)
 	{
 	    m_operator->keyPressEvent(event);
 	}
+    QGraphicsView::keyPressEvent(event);
 }
 
 void GraphicWidget::mousePressEvent(QMouseEvent* event)
@@ -45,6 +46,7 @@ void GraphicWidget::mousePressEvent(QMouseEvent* event)
     {
         m_operator->mousePressEvent(event);
     }
+    QGraphicsView::mousePressEvent(event);
 }
 
 void GraphicWidget::mouseMoveEvent(QMouseEvent* event)
@@ -53,6 +55,7 @@ void GraphicWidget::mouseMoveEvent(QMouseEvent* event)
     {
         m_operator->mouseMoveEvent(event);
     }
+    QGraphicsView::mouseMoveEvent(event);
 
 	auto& dm = DisplayManager::instance();
 	auto vp = dm.getViewportIDByGraphicsWidget(this);
@@ -67,6 +70,7 @@ void GraphicWidget::mouseReleaseEvent(QMouseEvent* event)
 	{
 		pOp->mouseReleaseEvent(event);
 	}
+    QGraphicsView::mouseReleaseEvent(event);
 }
 
 void GraphicWidget::init()
@@ -92,6 +96,8 @@ void GraphicWidget::drawBackground(QPainter* painter, const QRectF& rect)
     QGraphicsView::drawBackground(painter, rect);
 
     painter->save();
+
+    painter->drawRect(0, 0, 200, 100);
     QWidget* vp = viewport();
 
     int w = vp->width();
