@@ -17,12 +17,8 @@ GraphicWidget::GraphicWidget(QWidget* parent) : QGraphicsView(parent)
 {
 	setMouseTracking(true);
 	setScene(&m_scene);
-
-	//QOpenGLWidget* gl = new QOpenGLWidget();
-	//QSurfaceFormat format;
-	//format.setSamples(4);
-	//gl->setFormat(format);
-	//setViewport(gl);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
 QPointF GraphicWidget::worldToViewport(const QPointF& p) const
@@ -76,68 +72,67 @@ void GraphicWidget::mouseReleaseEvent(QMouseEvent* event)
 void GraphicWidget::init()
 {
 	setBackgroundBrush(QBrush(QColor(0x3C3C3C)));
-
-	m_scene.addRect(-1000.0, 100.0, 900.0, 100.0, Qt::NoPen, QBrush(Qt::yellow));
-	m_scene.addRect(0.0, 0.0, 1000.0, 100.0, Qt::NoPen, QBrush(Qt::blue));
-	QRectF bbRect = m_scene.itemsBoundingRect();
-	LOG_DEBUG("bounding rect is at {0},{1}, w {2}, h{3}", bbRect.left(), bbRect.top(), bbRect.width(), bbRect.height());
-	m_scene.setSceneRect(bbRect);
-
-	QWidget* vp = viewport();
-
-	int w = vp->width();
-	int h = vp->height();
-	LOG_TRACE("Viewport size is {0} * {1}", w, h);
-
-	QPointF tl = mapToScene(0, 0);
-	QPointF br = mapToScene(w, h);
-	//m_scene.setSceneRect(QRectF(tl, br));
-
-	QColor red(0xa44453);
-	QColor green(0x638532);
-	QColor gray(0x4F4F4F);
-
-	//int leftIndex = int(tl.x() / 50);
-	//int rightIndex = int(br.x() / 50);
- //   for (int i = leftIndex; i <= rightIndex; ++i)
- //   {
-	//	QColor             c    = i == 0 ? green : gray;
- //       QGraphicsLineItem* line = m_scene.addLine(i * GRID_SIZE, tl.y(), i * GRID_SIZE, br.y(), c);
-	//	line->setZValue(-1);
-
- //   }
-
-	//int topIndex = int(tl.y() / 50);
-	//int bottomIndex = int(br.y() / 50);
-	//for (int j = topIndex; j <= bottomIndex; ++j)
-	//{
-	//	QColor             c    = j == 0 ? red : gray;
- //       QGraphicsLineItem* line = m_scene.addLine(tl.x(), j * GRID_SIZE, br.x(), j * GRID_SIZE, c);
-	//	line->setZValue(-1);
-	//}
+    updateSceneRect();
 }
 
 void GraphicWidget::tick()
 {
 }
 
+void GraphicWidget::logViewportSize(const char* funcName)
+{
+    QWidget* vp = viewport();
+    int      w = vp->width();
+    int      h = vp->height();
+    LOG_TRACE("{0} Viewport size is {1} * {2}", funcName, w, h);
+}
+
+void GraphicWidget::drawBackground(QPainter* painter, const QRectF& rect)
+{
+    QGraphicsView::drawBackground(painter, rect);
+
+    painter->save();
+    QWidget* vp = viewport();
+
+    int w = vp->width();
+    int h = vp->height();
+
+    QPointF tl = mapToScene(0, 0);
+    QPointF br = mapToScene(w, h);
+
+    QColor red(0xa44453);
+    QColor green(0x638532);
+    QColor gray(0x4F4F4F);
+
+    int leftIndex = static_cast<int>(std::ceil(tl.x() / 50));
+    int rightIndex = static_cast<int>(std::floor(br.x() / 50));
+    for (int i = leftIndex; i <= rightIndex; ++i)
+    {
+        QColor             c = i == 0 ? green : gray;
+        painter->setPen(QPen(c));
+        painter->drawLine(i * GRID_SIZE, tl.y(), i * GRID_SIZE, br.y());
+    }
+
+    int topIndex = static_cast<int>(std::ceil(tl.y() / 50));
+    int bottomIndex = static_cast<int>(std::floor(br.y() / 50));
+    for (int j = topIndex; j <= bottomIndex; ++j)
+    {
+        QColor             c = j == 0 ? red : gray;
+        painter->setPen(QPen(c));
+        painter->drawLine(tl.x(), j * GRID_SIZE, br.x(), j * GRID_SIZE);
+    }
+    painter->restore();
+}
+
 void GraphicWidget::resizeEvent(QResizeEvent* event)
 {
-	QWidget* vp = viewport();
-
-	int w = vp->width();
-	int h = vp->height();
-	LOG_TRACE("Viewport size is {0} * {1}", w, h);
+    logViewportSize(__FUNCTION__);
 	QGraphicsView::resizeEvent(event);
 }
 
 void GraphicWidget::showEvent(QShowEvent* event)
 {
-	QWidget* vp = viewport();
-
-	int w = vp->width();
-	int h = vp->height();
-	LOG_TRACE("Viewport size is {0} * {1}", w, h);
+    logViewportSize(__FUNCTION__);
 	init();
 	QGraphicsView::showEvent(event);
 }
@@ -145,7 +140,7 @@ void GraphicWidget::showEvent(QShowEvent* event)
 void GraphicWidget::wheelEvent(QWheelEvent* event)
 {
 	auto delta = event->angleDelta();
-	LOG_DEBUG("wheel angle y delta: {0}", delta.y());
+	LOG_DEBUG("{0} wheel angle y delta: {1}", __FUNCTION__, delta.y());
 	if (delta.y() > 0)
 	{
 		scale(1.1, 1.1);
@@ -154,51 +149,30 @@ void GraphicWidget::wheelEvent(QWheelEvent* event)
 	{
 		scale(10. / 11., 10. / 11.);
 	}
-
     QGraphicsView::wheelEvent(event);
+}
+
+void GraphicWidget::updateSceneRect()
+{
+    QWidget* vp = viewport();
+    int      w  = vp->width();
+    int      h  = vp->height();
+    QPointF  tl = mapToScene(0, 0);
+    QPointF  br = mapToScene(w, h);
+    QRectF   vpRect(tl, br);
+    QRectF   bbRect    = m_scene.itemsBoundingRect();
+    QRectF   finalRect = vpRect.united(bbRect);
+    QRectF   rect      = m_scene.sceneRect();
+    if (rect != finalRect)
+    {
+        m_scene.setSceneRect(finalRect);
+        LOG_DEBUG("Scene rect is at {0},{1}, w {2}, h{3}", finalRect.left(), finalRect.top(), finalRect.width(), finalRect.height());
+    }
 }
 
 void GraphicWidget::paintEvent(QPaintEvent* event)
 {
-	QRectF bbRect = m_scene.itemsBoundingRect();
-	LOG_DEBUG("bounding rect is at {0},{1}, w {2}, h{3}", bbRect.left(), bbRect.top(), bbRect.width(), bbRect.height());
-	std::for_each(m_bgGrid.begin(), m_bgGrid.end(), [this](QGraphicsLineItem* line)
-    {
-		m_scene.removeItem(line);
-	});
-	m_bgGrid.clear();
-
-	QWidget* vp = viewport();
-
-	int w = vp->width();
-	int h = vp->height();
-
-	QPointF tl = mapToScene(0, 0);
-	QPointF br = mapToScene(w, h);
-
-	QColor red(0xa44453);
-	QColor green(0x638532);
-	QColor gray(0x4F4F4F);
-
-	int leftIndex = int(tl.x() / 50);
-	int rightIndex = int(br.x() / 50);
-    for (int i = leftIndex; i <= rightIndex; ++i)
-    {
-		QColor             c    = i == 0 ? green : gray;
-        QGraphicsLineItem* line = m_scene.addLine(i * GRID_SIZE, tl.y(), i * GRID_SIZE, br.y(), c);
-		line->setZValue(-1);
-		m_bgGrid.push_back(line);
-    }
-
-	int topIndex = int(tl.y() / 50);
-	int bottomIndex = int(br.y() / 50);
-	for (int j = topIndex; j <= bottomIndex; ++j)
-	{
-		QColor             c    = j == 0 ? red : gray;
-        QGraphicsLineItem* line = m_scene.addLine(tl.x(), j * GRID_SIZE, br.x(), j * GRID_SIZE, c);
-		line->setZValue(-1);
-		m_bgGrid.push_back(line);
-	}
-
+    logViewportSize(__FUNCTION__);
     QGraphicsView::paintEvent(event);
+
 }

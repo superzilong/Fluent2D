@@ -4,6 +4,8 @@
 
 #include "GraphicWidget.h"
 
+#include "Core/Log/Log.h"
+
 static int s_viewport_index = 0;
 
 std::pair<int, QWidget*> DisplayManager::createGraphicsWidget(QWidget* parent)
@@ -37,10 +39,13 @@ std::uintptr_t DisplayManager::addCircle(const int vp, const QPointF p, const do
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
-        auto                  graphicsScene = dynamic_cast<GraphicWidget*>(m_vp2GraphicsWidget.value(vp))->scene();
-        QGraphicsEllipseItem* item          = graphicsScene->addEllipse(p.x() - r, p.y() - r, 2*r, 2*r, Qt::NoPen, QColor(0xA2A3A4));
-        uintptr_t             key            = reinterpret_cast<std::uintptr_t>(item);
+        auto                  graphicsWidget = dynamic_cast<GraphicWidget*>(m_vp2GraphicsWidget.value(vp));
+        QGraphicsScene*       scene             = graphicsWidget->scene();
+        QGraphicsEllipseItem* item              = scene->addEllipse(p.x() - r, p.y() - r, 2*r, 2*r, Qt::NoPen, QColor(0xA2A3A4));
+        uintptr_t key = reinterpret_cast<std::uintptr_t>(item);
         m_vp2items[vp].push_back(key);
+
+        graphicsWidget->updateSceneRect();
         return key;
     }
     return 0;

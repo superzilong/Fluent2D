@@ -16,6 +16,8 @@ public:
 
 	QPointF worldToViewport(const QPointF& p) const;
 	QPointF viewportToWorld(const QPointF& p) const;
+	void updateSceneRect();
+
 
 protected:
 	void keyPressEvent(QKeyEvent* event) override;
@@ -26,6 +28,9 @@ protected:
     void showEvent(QShowEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
+    void drawBackground(QPainter* painter, const QRectF& rect) override;
+
+	void logViewportSize(const char* funcName);
 
 private:
 	void init();
