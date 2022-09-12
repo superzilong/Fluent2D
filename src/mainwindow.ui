@@ -37,16 +37,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionRender"/>
   </widget>
-  <action name="actionRender">
-   <property name="text">
-    <string>Render</string>
-   </property>
-   <property name="toolTip">
-    <string>Render</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

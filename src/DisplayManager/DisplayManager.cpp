@@ -16,7 +16,7 @@ std::pair<int, QWidget*> DisplayManager::createGraphicsWidget(QWidget* parent)
     return std::make_pair(s_viewport_index, gw);
 }
 
-QWidget* DisplayManager::getGraphicsWidgetByViewportID(const int vp) const
+QWidget* DisplayManager::getGraphicsWidgetByViewportID(int vp) const
 {
     return m_vp2GraphicsWidget.value(vp, nullptr);
 }
@@ -26,7 +26,7 @@ int DisplayManager::getViewportIDByGraphicsWidget(QWidget* w) const
     return m_vp2GraphicsWidget.key(w, -1);
 }
 
-void DisplayManager::setCurrentOperator(const int vp, const std::shared_ptr<BaseOperator>& op)
+void DisplayManager::setCurrentOperator(int vp, const std::shared_ptr<BaseOperator>& op)
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -34,7 +34,7 @@ void DisplayManager::setCurrentOperator(const int vp, const std::shared_ptr<Base
     }
 }
 
-std::uintptr_t DisplayManager::addLine(const int vp, const QPointF& p1, const QPointF& p2)
+std::uintptr_t DisplayManager::addLine(int vp, const QPointF& p1, const QPointF& p2)
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -48,7 +48,7 @@ std::uintptr_t DisplayManager::addLine(const int vp, const QPointF& p1, const QP
     return 0;
 }
 
-void DisplayManager::modifyLine(const int vp, const std::uintptr_t key, const QPointF& p1, const QPointF& p2)
+void DisplayManager::modifyLine(int vp, std::uintptr_t key, const QPointF& p1, const QPointF& p2)
 {
     if (m_vp2GraphicsWidget.contains(vp) && m_vp2items.contains(vp))
     {
@@ -60,7 +60,7 @@ void DisplayManager::modifyLine(const int vp, const std::uintptr_t key, const QP
     }
 }
 
-std::uintptr_t DisplayManager::addCircle(const int vp, const QPointF& p, const double r)
+std::uintptr_t DisplayManager::addCircle(int vp, const QPointF& p, double r)
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -74,7 +74,7 @@ std::uintptr_t DisplayManager::addCircle(const int vp, const QPointF& p, const d
     return 0;
 }
 
-void DisplayManager::modifyCircle(const int vp, const std::uintptr_t key, const QPointF& p, const double r)
+void DisplayManager::modifyCircle(int vp, std::uintptr_t key, const QPointF& p, double r)
 {
     if (m_vp2GraphicsWidget.contains(vp) && m_vp2items.contains(vp))
     {
@@ -86,7 +86,7 @@ void DisplayManager::modifyCircle(const int vp, const std::uintptr_t key, const 
     }
 }
 
-std::uintptr_t DisplayManager::addRect(const int vp, const QPointF& topLeft, const double w, const double h)
+std::uintptr_t DisplayManager::addRect(int vp, const QPointF& topLeft, double w, double h)
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -100,7 +100,7 @@ std::uintptr_t DisplayManager::addRect(const int vp, const QPointF& topLeft, con
     return 0;
 }
 
-void DisplayManager::modifyRect(const int vp, const std::uintptr_t key, const QPointF& topLeft, const double w, const double h)
+void DisplayManager::modifyRect(int vp, std::uintptr_t key, const QPointF& topLeft, double w, double h)
 {
     if (m_vp2GraphicsWidget.contains(vp) && m_vp2items.contains(vp))
     {
@@ -112,7 +112,7 @@ void DisplayManager::modifyRect(const int vp, const std::uintptr_t key, const QP
     }
 }
 
-std::uintptr_t DisplayManager::addPolygon(const int vp, const QVector<QPointF>& pts)
+std::uintptr_t DisplayManager::addPolygon(int vp, const QVector<QPointF>& pts)
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -126,7 +126,7 @@ std::uintptr_t DisplayManager::addPolygon(const int vp, const QVector<QPointF>& 
     return 0;
 }
 
-void DisplayManager::modifyPolygon(const int vp, const std::uintptr_t key, const QVector<QPointF>& pts)
+void DisplayManager::modifyPolygon(int vp, std::uintptr_t key, const QVector<QPointF>& pts)
 {
     if (m_vp2GraphicsWidget.contains(vp) && m_vp2items.contains(vp))
     {
@@ -138,7 +138,7 @@ void DisplayManager::modifyPolygon(const int vp, const std::uintptr_t key, const
     }
 }
 
-void DisplayManager::deleteItem(const int vp, const std::uintptr_t key)
+void DisplayManager::deleteItem(int vp, std::uintptr_t key)
 {
     if (m_vp2GraphicsWidget.contains(vp) && m_vp2items.contains(vp))
     {
@@ -152,7 +152,7 @@ void DisplayManager::deleteItem(const int vp, const std::uintptr_t key)
     }
 }
 
-QPointF DisplayManager::worldToViewport(const int vp, const QPointF& p) const
+QPointF DisplayManager::worldToViewport(int vp, const QPointF& p) const
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -162,7 +162,7 @@ QPointF DisplayManager::worldToViewport(const int vp, const QPointF& p) const
     return QPointF();
 }
 
-QPointF DisplayManager::viewportToWorld(const int vp, const QPointF& p) const
+QPointF DisplayManager::viewportToWorld(int vp, const QPointF& p) const
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {
@@ -172,7 +172,7 @@ QPointF DisplayManager::viewportToWorld(const int vp, const QPointF& p) const
     return QPointF();
 }
 
-QPointF DisplayManager::getMousePointInWorld(const int vp) const
+QPointF DisplayManager::getMousePointInWorld(int vp) const
 {
     if (m_vp2GraphicsWidget.contains(vp))
     {

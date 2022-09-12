@@ -155,6 +155,7 @@ void GraphicWidget::wheelEvent(QWheelEvent* event)
 	{
 		scale(10. / 11., 10. / 11.);
 	}
+    updateSceneRect();
     QGraphicsView::wheelEvent(event);
 }
 

@@ -19,13 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
 	setMouseTracking(true);
 	centralWidget()->setMouseTracking(true);
 	
-	setWindowTitle("QMainWindow SDL Rendering GraphicWidget");
-	//setBaseSize(1200, 900);
+	setWindowTitle("Fluent2D");
 	resize(1200, 900);
-
-	connect(ui->actionRender, &QAction::triggered, this, [this]()
-	{
-	});
 
 	connect(&dm, &DisplayManager::signal_mousePos, this, &MainWindow::slot_printMousePos);
 
@@ -37,9 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
 		ui->toolBar->addAction(p_cad_action);
     }
 
-	QAction* play = new QAction("play", this);
-	play->setCheckable(true);
-	ui->toolBar->addAction(play);
+	QAction* clear = new QAction("clear", this);
+	ui->toolBar->addAction(clear);
+
+    QAction* zoomFit = new QAction("zoom fit", this);
+	ui->toolBar->addAction(zoomFit);
 }
 
 MainWindow::~MainWindow()
